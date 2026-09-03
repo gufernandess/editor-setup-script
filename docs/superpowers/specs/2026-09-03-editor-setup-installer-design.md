@@ -68,9 +68,12 @@ it generalizes across editors and install methods for free.
 
 ### Detection (`lib/detect.sh`)
 
-1. Read `$TERM_PROGRAM`. If empty, abort with a message instructing
-   the user to run the script from inside the target editor's
-   integrated terminal.
+1. Read `$TERM_PROGRAM`. If empty, log an error explaining that the
+   script should be run from inside the target editor's integrated
+   terminal, and treat all of `editor_bin` / `config_dir` / `mcp_path`
+   as unresolved (empty). This does not abort the script: the font
+   step does not depend on editor detection at all, and runs
+   regardless.
 2. Walk the process ancestry starting at `$PPID` (via `/proc/<pid>/exe`
    and `/proc/<pid>/stat` for the next ancestor), looking for the
    first ancestor whose resolved executable path has a sibling
