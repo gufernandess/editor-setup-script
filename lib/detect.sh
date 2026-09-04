@@ -32,6 +32,23 @@ find_electron_ancestor() {
     return 1
 }
 
+_config_dir_candidates() {
+    local data_folder="$1"
+
+    if [[ -n "${XDG_CONFIG_HOME:-}" ]]; then
+        echo "$XDG_CONFIG_HOME/$data_folder/User"
+    fi
+    echo "$HOME/.config/$data_folder/User"
+
+    local dir
+    for dir in "$HOME"/.var/app/*/config/"$data_folder"/User; do
+        [[ -d "$dir" ]] && echo "$dir"
+    done
+    for dir in "$HOME"/snap/*/current/.config/"$data_folder"/User; do
+        [[ -d "$dir" ]] && echo "$dir"
+    done
+}
+
 read_product_json() {
     python3 -c "
 import json, sys
@@ -95,7 +112,20 @@ resolve_editor_paths() {
     fi
 
     if [[ -n "$data_folder" ]]; then
-        EDITOR_CONFIG_DIR="$HOME/.config/$data_folder/User"
+        local candidate found_existing=""
+        while IFS= read -r candidate; do
+            if [[ -d "$candidate" ]]; then
+                EDITOR_CONFIG_DIR="$candidate"
+                found_existing="1"
+                break
+            fi
+        done < <(_config_dir_candidates "$data_folder")
+
+        if [[ -z "$found_existing" ]]; then
+            EDITOR_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$data_folder/User"
+        else
+            log_info "using config directory: $EDITOR_CONFIG_DIR"
+        fi
     else
         log_warn "product.json has no dataFolderName - settings/keybindings will be skipped"
     fi
