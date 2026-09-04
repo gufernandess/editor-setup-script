@@ -34,9 +34,13 @@ Full log at `~/.editor-setup-install.log`.
 
 ## Requirements
 
-bash, python3, curl, unzip, fontconfig (`fc-cache`).
+- bash
+- python3
+- curl
+- unzip
+- fontconfig (`fc-cache`)
 
-## Known limitations
+## Caveats
 
 - `settings.json`, `keybindings.json`, and `mcp.json` are **fully
   replaced**, not merged — any customization already in those files
