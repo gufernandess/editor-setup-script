@@ -12,27 +12,25 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 main() {
     CUSTOMIZATIONS_JSON="${CUSTOMIZATIONS_JSON:-$SCRIPT_DIR/customizations.json}"
     LOG_FILE="${LOG_FILE:-$HOME/.editor-setup-install.log}"
-    export CUSTOMIZATIONS_JSON LOG_FILE
+    export CUSTOMIZATIONS_JSON LOG_FILE SCRIPT_DIR
 
     log_info "starting editor customization install"
 
     resolve_editor_paths || true
+    export EDITOR_APP_NAME EDITOR_BIN EDITOR_CONFIG_DIR EDITOR_PID
 
-    if [[ -n "$EDITOR_APP_NAME" ]]; then
-        log_info "editor detected: $EDITOR_APP_NAME"
-        record_step "editor detection ($EDITOR_APP_NAME)" "OK"
-    else
-        record_step "editor detection" "ERROR"
-    fi
+    log_info "closing the editor so changes apply without it racing to overwrite them - it will relaunch automatically in a few seconds"
 
-    install_extensions "$EDITOR_BIN"
-    install_font
-    apply_settings "$EDITOR_CONFIG_DIR"
-
-    print_summary
-    log_info "full log at $LOG_FILE"
-
-    restart_editor "$EDITOR_BIN" "$EDITOR_PID"
+    # The whole pipeline below (stop editor, install, relaunch) runs detached
+    # (new session) so it survives both the editor process and this script's
+    # own terminal dying once the editor is killed.
+    setsid bash -c '
+        source "$SCRIPT_DIR/lib/log.sh"
+        source "$SCRIPT_DIR/lib/detect.sh"
+        source "$SCRIPT_DIR/lib/apply.sh"
+        run_install_pipeline
+    ' >/dev/null 2>&1 </dev/null &
+    disown
 }
 
 source "$SCRIPT_DIR/lib/log.sh"

@@ -119,32 +119,64 @@ apply_settings() {
     _apply_json_key "$config_dir" "keybindings.json" "keybindings" "keybindings"
 }
 
-restart_editor() {
-    local editor_bin="$1" editor_pid="$2"
-    if [[ -z "$editor_bin" || -z "$editor_pid" ]]; then
-        log_warn "skipping editor restart: binary or pid not resolved"
-        record_step "editor restart" "SKIPPED"
+_stop_editor() {
+    local editor_pid="$1"
+    if [[ -z "$editor_pid" ]]; then
+        log_warn "no editor pid resolved - continuing without stopping it; settings/theme/font may not apply until you restart it manually"
+        record_step "editor stop" "SKIPPED"
         return 0
     fi
 
-    log_info "restarting the editor (pid $editor_pid) in a few seconds to load the new extensions/theme/font"
-    record_step "editor restart" "OK"
-
-    # Detached (new session) so it survives the editor process - and this
-    # script's own terminal - dying partway through.
-    setsid bash -c '
-        pid="$1"
-        bin="$2"
-        sleep 2
-        kill -TERM "$pid" 2>/dev/null
-        for _ in $(seq 1 100); do
-            kill -0 "$pid" 2>/dev/null || break
-            sleep 0.1
-        done
-        kill -0 "$pid" 2>/dev/null && kill -KILL "$pid" 2>/dev/null
-        setsid "$bin" >/dev/null 2>&1 </dev/null &
-    ' _ "$editor_pid" "$editor_bin" >/dev/null 2>&1 </dev/null &
-    disown
-
+    kill -TERM "$editor_pid" 2>/dev/null
+    local i
+    for i in $(seq 1 100); do
+        kill -0 "$editor_pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    if kill -0 "$editor_pid" 2>/dev/null; then
+        kill -KILL "$editor_pid" 2>/dev/null
+    fi
+    log_ok "editor stopped (pid $editor_pid)"
+    record_step "editor stop" "OK"
     return 0
+}
+
+_start_editor() {
+    local editor_bin="$1"
+    if [[ -z "$editor_bin" ]]; then
+        log_warn "no editor binary resolved - cannot relaunch automatically"
+        record_step "editor relaunch" "SKIPPED"
+        return 0
+    fi
+
+    setsid "$editor_bin" >/dev/null 2>&1 </dev/null &
+    disown
+    log_ok "editor relaunched"
+    record_step "editor relaunch" "OK"
+    return 0
+}
+
+# Runs the whole install as a single pipeline: stop the editor first (so
+# nothing races with it while writing extensions/font/settings), apply
+# everything with it closed, then relaunch it. Meant to run detached from
+# the caller's terminal - see install-editor-setup.sh.
+run_install_pipeline() {
+    if [[ -n "${EDITOR_APP_NAME:-}" ]]; then
+        log_info "editor detected: $EDITOR_APP_NAME"
+        record_step "editor detection ($EDITOR_APP_NAME)" "OK"
+    else
+        log_error "could not detect the editor"
+        record_step "editor detection" "ERROR"
+    fi
+
+    _stop_editor "${EDITOR_PID:-}"
+
+    install_extensions "${EDITOR_BIN:-}"
+    install_font
+    apply_settings "${EDITOR_CONFIG_DIR:-}"
+
+    _start_editor "${EDITOR_BIN:-}"
+
+    print_summary
+    log_info "full log at $LOG_FILE"
 }

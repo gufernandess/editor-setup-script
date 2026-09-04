@@ -30,20 +30,22 @@ bash install-editor-setup.sh
 
 The script detects the running editor automatically from the
 terminal it's running in (it won't work if run outside the integrated
-terminal of a VS Code-family editor). It never stops on the first
-error: each step (extensions, font, settings, keybindings) runs
-independently, and the summary at the end shows what succeeded, what
-failed, and what was skipped.
+terminal of a VS Code-family editor). It then **closes that editor
+process first**, applies everything (extensions, font, settings,
+keybindings) while it's shut down, and relaunches it — each step still
+runs independently and never stops on the first error. Closing it
+first, instead of applying changes to the live process and restarting
+afterward, avoids the editor's own startup/shutdown routines racing
+with the script and overwriting `settings.json`/`keybindings.json`
+right after they're written.
 
-Full log at `~/.editor-setup-install.log`.
+This is meant to be run once, before starting any work, so it doesn't
+try to preserve open tabs/windows: whatever the editor's own session
+restore does on a normal restart is what you'll get back.
 
-As a last step, the script **kills and relaunches the editor process**
-so the new extensions, color/icon theme, and installed font actually
-take effect (the running window doesn't pick those up on its own —
-only a full restart does, not just "Reload Window"). This is meant to
-be run once, before starting any work, so it doesn't try to preserve
-open tabs/windows: whatever the editor's own session restore does on
-a normal restart is what you'll get back.
+Since the editor closes almost immediately, most of the run happens
+after the terminal is gone — check `~/.editor-setup-install.log` for
+the full log and final summary.
 
 ## Requirements
 
