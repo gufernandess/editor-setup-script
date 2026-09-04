@@ -23,10 +23,10 @@ install_extensions() {
 
     local ids
     ids="$(python3 -c "
-import json
-d = json.load(open('$CUSTOMIZATIONS_JSON'))
+import json, sys
+d = json.load(open(sys.argv[1]))
 print('\n'.join(d['extensions']))
-")"
+" "$CUSTOMIZATIONS_JSON")"
 
     local ok=0 fail=0 id
     while IFS= read -r id; do
@@ -56,8 +56,8 @@ install_font() {
     fi
 
     local name url tmpdir zip_path
-    name="$(python3 -c "import json; print(json.load(open('$CUSTOMIZATIONS_JSON'))['font']['name'])")"
-    url="$(python3 -c "import json; print(json.load(open('$CUSTOMIZATIONS_JSON'))['font']['download_url'])")"
+    name="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1]))['font']['name'])" "$CUSTOMIZATIONS_JSON")"
+    url="$(python3 -c "import json, sys; print(json.load(open(sys.argv[1]))['font']['download_url'])" "$CUSTOMIZATIONS_JSON")"
 
     tmpdir="$(mktemp -d)"
     zip_path="$tmpdir/font.zip"
@@ -91,6 +91,8 @@ install_font() {
 
 _apply_json_key() {
     local config_dir="$1" filename="$2" overlay_key="$3" step_label="$4"
+    shift 4
+    local extra_args=("$@")
     local target="$config_dir/$filename"
 
     mkdir -p "$config_dir"
@@ -99,7 +101,7 @@ _apply_json_key() {
         cp "$target" "$target.bak.$(date +%Y%m%d%H%M%S)"
     fi
 
-    if python3 "$SCRIPT_LIB_DIR/json_merge.py" "$target" "$CUSTOMIZATIONS_JSON" --overlay-key "$overlay_key" >>"$LOG_FILE" 2>&1; then
+    if python3 "$SCRIPT_LIB_DIR/json_merge.py" "$target" "$CUSTOMIZATIONS_JSON" --overlay-key "$overlay_key" "${extra_args[@]}" >>"$LOG_FILE" 2>&1; then
         log_ok "$step_label aplicado em $target"
         record_step "$step_label" "OK"
         return 0
@@ -131,6 +133,10 @@ apply_mcp() {
     fi
     local mcp_dir
     mcp_dir="$(dirname "$mcp_path")"
-    _apply_json_key "$mcp_dir" "$(basename "$mcp_path")" "mcp" "mcp"
+    # mcpServers (and powers.mcpServers) must be merged per-server-name,
+    # not replaced wholesale, so a user's existing MCP servers that
+    # aren't in customizations.json survive the merge.
+    _apply_json_key "$mcp_dir" "$(basename "$mcp_path")" "mcp" "mcp" \
+        --nested-merge-key mcpServers --nested-merge-key powers.mcpServers
     log_info "servidores MCP que exigem login (ex: figma) precisam de autenticação manual depois"
 }

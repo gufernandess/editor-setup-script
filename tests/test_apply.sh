@@ -80,4 +80,16 @@ assert_contains "$merged" '"editor.tabSize": 2' "settings.json should let the ov
 backup_count="$(find "$config_dir" -name "settings.json.bak.*" | wc -l)"
 assert_eq "1" "$backup_count" "should have backed up the existing settings.json"
 
+# --- apply_mcp: preserves a pre-existing MCP server not in the overlay ---
+mcp_path="$tmpdir/mcp_config/mcp.json"
+mkdir -p "$(dirname "$mcp_path")"
+cat > "$mcp_path" <<'EOF'
+{"mcpServers": {"my-existing-server": {"command": "foo"}}}
+EOF
+STEP_NAMES=(); STEP_STATUSES=()
+apply_mcp "$mcp_path"
+mcp_result="$(cat "$mcp_path")"
+assert_contains "$mcp_result" '"my-existing-server"' "apply_mcp should keep a pre-existing MCP server not present in the overlay"
+assert_contains "$mcp_result" '"fetch"' "apply_mcp should still add the overlay's MCP server"
+
 rm -rf "$tmpdir"

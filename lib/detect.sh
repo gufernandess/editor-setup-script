@@ -36,8 +36,12 @@ find_electron_ancestor() {
 read_product_json() {
     python3 -c "
 import json, sys
-with open(sys.argv[1], 'r', encoding='utf-8') as f:
-    d = json.load(f)
+try:
+    with open(sys.argv[1], 'r', encoding='utf-8') as f:
+        d = json.load(f)
+except (OSError, json.JSONDecodeError) as exc:
+    print(f'error: failed to read {sys.argv[1]}: {exc}', file=sys.stderr)
+    sys.exit(1)
 print(d.get('applicationName', ''))
 print(d.get('dataFolderName', ''))
 " "$1"

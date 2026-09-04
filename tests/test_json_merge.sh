@@ -49,4 +49,38 @@ else
     TESTS_RUN=$((TESTS_RUN + 1))
 fi
 
+# Case 5: --nested-merge-key merges within a nested key instead of replacing
+# it wholesale (this is how mcp.json's mcpServers / powers.mcpServers must
+# behave so a user's existing MCP servers survive the merge)
+cat > "$tmpdir/target5.json" <<'EOF'
+{"mcpServers": {"existing": {"command": "foo"}}, "powers": {"mcpServers": {"existing-power": {"url": "x"}}}}
+EOF
+cat > "$tmpdir/overlay5.json" <<'EOF'
+{"mcp": {"mcpServers": {"new": {"command": "bar"}}, "powers": {"mcpServers": {"new-power": {"url": "y"}}}}}
+EOF
+python3 "$PROJECT_ROOT/lib/json_merge.py" "$tmpdir/target5.json" "$tmpdir/overlay5.json" --overlay-key mcp --nested-merge-key mcpServers --nested-merge-key powers.mcpServers
+result5="$(cat "$tmpdir/target5.json")"
+assert_contains "$result5" '"existing"' "nested-merge-key should preserve a pre-existing mcpServers entry"
+assert_contains "$result5" '"new"' "nested-merge-key should add the overlay's mcpServers entry"
+assert_contains "$result5" '"existing-power"' "nested-merge-key should preserve a pre-existing powers.mcpServers entry"
+assert_contains "$result5" '"new-power"' "nested-merge-key should add the overlay's powers.mcpServers entry"
+
+# Case 6: JSONC target (// comment header, like VS Code's real
+# keybindings.json, plus a trailing comma) should still parse and merge
+cat > "$tmpdir/target6.json" <<'EOF'
+// Place your key bindings in this file to override the defaults
+[
+  {"key": "ctrl+q", "command": "existing.command"},
+]
+EOF
+cat > "$tmpdir/overlay6.json" <<'EOF'
+{"keybindings": [{"key": "ctrl+k", "command": "noop"}]}
+EOF
+python3 "$PROJECT_ROOT/lib/json_merge.py" "$tmpdir/target6.json" "$tmpdir/overlay6.json" --overlay-key keybindings
+exit_code6=$?
+result6="$(cat "$tmpdir/target6.json")"
+assert_eq "0" "$exit_code6" "JSONC target with a comment header should merge successfully"
+assert_contains "$result6" '"existing.command"' "JSONC merge should keep the pre-existing keybinding"
+assert_contains "$result6" '"noop"' "JSONC merge should add the overlay's keybinding"
+
 rm -rf "$tmpdir"

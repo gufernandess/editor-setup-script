@@ -60,4 +60,20 @@ resolve_editor_paths 100
 result2=$?
 assert_eq "1" "$result2" "resolve_editor_paths should return 1 when TERM_PROGRAM is unset"
 
+# --- read_product_json: malformed product.json should error cleanly,
+# with no raw Python traceback on stderr ---
+cat > "$tmpdir/bad_product.json" <<'EOF'
+{not valid json
+EOF
+bad_output="$(read_product_json "$tmpdir/bad_product.json" 2>&1 >/dev/null)"
+bad_exit=$?
+assert_eq "1" "$bad_exit" "read_product_json should exit 1 on malformed product.json"
+if echo "$bad_output" | grep -q "Traceback"; then
+    echo "  FAIL: read_product_json should not print a Python traceback on malformed product.json"
+    TESTS_RUN=$((TESTS_RUN + 1))
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+else
+    TESTS_RUN=$((TESTS_RUN + 1))
+fi
+
 rm -rf "$tmpdir"
