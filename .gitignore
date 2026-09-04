@@ -1,0 +1,10 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Claude Code worktrees and local scratch workspace
+.claude/
+.superpowers/
+
+# OS cruft
+.DS_Store

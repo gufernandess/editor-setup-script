@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-"""Write a JSON overlay value to a target file, always replacing it.
-
-Usage:
-    json_merge.py <target_path> <overlay_source_path> [--overlay-key KEY]
-
-If --overlay-key is given, the value written is
-json.load(overlay_source_path)[KEY]; otherwise it's the whole content
-of overlay_source_path. The target file's existing content, if any, is
-never read or merged with -- it is always fully replaced, by design
-(simpler and avoids ever having to parse a possibly hand-edited or
-JSONC target file). Callers that want to keep a copy of the previous
-content must back it up themselves before invoking this script.
-"""
 import argparse
 import json
 import sys

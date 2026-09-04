@@ -10,7 +10,6 @@ _proc_parent_pid() {
     local stat
     stat="$(cat "/proc/$1/stat" 2>/dev/null)" || return 1
     stat="${stat##*)}"
-    # shellcheck disable=SC2206
     local fields=($stat)
     echo "${fields[1]}"
 }

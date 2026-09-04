@@ -34,11 +34,10 @@ main() {
     log_info "log completo em $LOG_FILE"
 }
 
-# shellcheck source=lib/log.sh
 source "$SCRIPT_DIR/lib/log.sh"
-# shellcheck source=lib/detect.sh
+
 source "$SCRIPT_DIR/lib/detect.sh"
-# shellcheck source=lib/apply.sh
+
 source "$SCRIPT_DIR/lib/apply.sh"
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

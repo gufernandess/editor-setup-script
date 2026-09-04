@@ -1,43 +1,49 @@
-# editor-setup
+# A script for setup editor settings
 
-Instala extensões, fonte (JetBrains Mono), settings, keybindings e
-configuração de MCP servers num editor da família VS Code (Kiro, VS
-Code, forks), a partir do snapshot capturado da instalação local do
-Kiro em `customizations.json`.
+Installs extensions, fonts, settings, keybindings, and MCP server
+configuration into a VS Code-family editor (Kiro, VS Code, or any
+fork), from the snapshot captured in `customizations.json`.
 
-## Uso
+## Getting started
 
-Abra o terminal integrado do editor que você quer configurar e rode:
+Clone the repo, then run the script from inside the editor you want
+to configure:
 
-    bash install-editor-setup.sh
+```
+git clone <this-repo-url>
+cd editor-setup
+```
 
-O script detecta o editor automaticamente a partir do terminal em que
-está rodando (não funciona se executado fora do terminal integrado de
-um editor da família VS Code). Ele não interrompe no primeiro erro:
-cada etapa (extensões, fonte, settings, keybindings, mcp) roda de
-forma independente, e o resumo no final mostra o que funcionou, o que
-falhou e o que foi pulado.
+Open the integrated terminal of the editor you want to configure and
+run it from there:
 
-Log completo em `~/.editor-setup-install.log`.
+```
+bash install-editor-setup.sh
+```
 
-## Requisitos
+## Usage
+
+The script detects the running editor automatically from the
+terminal it's running in (it won't work if run outside the integrated
+terminal of a VS Code-family editor). It never stops on the first
+error: each step (extensions, font, settings, keybindings, mcp) runs
+independently, and the summary at the end shows what succeeded, what
+failed, and what was skipped.
+
+Full log at `~/.editor-setup-install.log`.
+
+## Requirements
 
 bash, python3, curl, unzip, fontconfig (`fc-cache`).
 
-## Limitações conhecidas
+## Known limitations
 
-- `settings.json`, `keybindings.json` e `mcp.json` são **substituídos
-  por completo**, não mesclados — qualquer customização que já
-  existisse nesses arquivos e não estiver em `customizations.json` é
-  perdida (o arquivo original fica salvo em `<arquivo>.bak.<timestamp>`
-  antes da substituição, então nada é perdido de vez).
-- Servidores MCP que exigem login interativo (ex. Figma) precisam de
-  autenticação manual depois de aplicado o `mcp.json`.
-- `customizations.json` é um snapshot estático capturado em
-  2026-09-03 a partir da instalação local do Kiro - não é
-  resincronizado automaticamente se você mudar extensões/settings
-  depois.
-- Validado até agora apenas contra uma instalação manual (tarball) do
-  Kiro. Comportamento em instalações via snap/pacman/pamac ainda não
-  foi testado - ver `docs/superpowers/specs/` para o design da
-  detecção.
+- `settings.json`, `keybindings.json`, and `mcp.json` are **fully
+  replaced**, not merged — any customization already in those files
+  that isn't in `customizations.json` is lost (the original file is
+  saved to `<file>.bak.<timestamp>` before being replaced, so nothing
+  is lost for good).
+- MCP servers that require interactive login (e.g. Figma) need manual
+  authentication after `mcp.json` is applied.
+- `customizations.json` is a static snapshot — it isn't resynced
+  automatically if you change extensions/settings later.
