@@ -65,7 +65,7 @@ apply_settings ""
 summary5="$(print_summary)"
 assert_contains "$summary5" "SKIPPED" "should skip settings when no config_dir was resolved"
 
-# --- apply_settings: merges into an existing settings.json, with backup ---
+# --- apply_settings: replaces an existing settings.json entirely, with backup ---
 config_dir="$tmpdir/config/User"
 mkdir -p "$config_dir"
 cat > "$config_dir/settings.json" <<'EOF'
@@ -73,14 +73,12 @@ cat > "$config_dir/settings.json" <<'EOF'
 EOF
 STEP_NAMES=(); STEP_STATUSES=()
 apply_settings "$config_dir"
-merged="$(cat "$config_dir/settings.json")"
-assert_contains "$merged" '"editor.fontSize": 16' "settings.json should gain the new key"
-assert_contains "$merged" '"editor.wordWrap": "on"' "settings.json should keep a key only the destination had"
-assert_contains "$merged" '"editor.tabSize": 2' "settings.json should let the overlay win on a conflicting key"
+settings_normalized="$(python3 -c "import json; print(json.dumps(json.load(open('$config_dir/settings.json')), sort_keys=True))")"
+assert_eq '{"editor.fontSize": 16, "editor.tabSize": 2}' "$settings_normalized" "settings.json should end up as exactly the overlay's content - the destination-only key must not survive"
 backup_count="$(find "$config_dir" -name "settings.json.bak.*" | wc -l)"
-assert_eq "1" "$backup_count" "should have backed up the existing settings.json"
+assert_eq "1" "$backup_count" "should have backed up the existing settings.json before replacing it"
 
-# --- apply_mcp: preserves a pre-existing MCP server not in the overlay ---
+# --- apply_mcp: replaces mcp.json entirely, with backup ---
 mcp_path="$tmpdir/mcp_config/mcp.json"
 mkdir -p "$(dirname "$mcp_path")"
 cat > "$mcp_path" <<'EOF'
@@ -89,7 +87,15 @@ EOF
 STEP_NAMES=(); STEP_STATUSES=()
 apply_mcp "$mcp_path"
 mcp_result="$(cat "$mcp_path")"
-assert_contains "$mcp_result" '"my-existing-server"' "apply_mcp should keep a pre-existing MCP server not present in the overlay"
-assert_contains "$mcp_result" '"fetch"' "apply_mcp should still add the overlay's MCP server"
+assert_contains "$mcp_result" '"fetch"' "apply_mcp should write the overlay's MCP server"
+mcp_backup_count="$(find "$(dirname "$mcp_path")" -name "mcp.json.bak.*" | wc -l)"
+assert_eq "1" "$mcp_backup_count" "should have backed up the existing mcp.json before replacing it"
+if echo "$mcp_result" | grep -q "my-existing-server"; then
+    echo "  FAIL: mcp.json should be fully replaced, not merged - a pre-existing server should not survive"
+    TESTS_RUN=$((TESTS_RUN + 1))
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+else
+    TESTS_RUN=$((TESTS_RUN + 1))
+fi
 
 rm -rf "$tmpdir"

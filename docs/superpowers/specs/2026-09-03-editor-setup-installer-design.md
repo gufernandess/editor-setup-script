@@ -119,15 +119,17 @@ it generalizes across editors and install methods for free.
   logged as a warning and the step is skipped, not fatal.
 - **Settings/keybindings** — runs only if `config_dir` resolved.
   Backs up any existing `settings.json` / `keybindings.json` to
-  `<file>.bak.<timestamp>` before writing. Applies a shallow merge:
-  keys from `customizations.json` overwrite matching keys at the
-  destination; keys already present at the destination but absent
-  from `customizations.json` are preserved.
+  `<file>.bak.<timestamp>` before writing, then fully replaces it with
+  `customizations.json`'s content. No merge: this was originally a
+  shallow merge (overlay wins per key, destination-only keys
+  preserved), but that required parsing the existing file, including
+  hand-edited or JSONC (commented) ones — a real source of bugs. The
+  simplification trades "preserve destination-only edits" for "never
+  have to parse a file that might not even be valid JSON."
 - **MCP config** — runs only if `mcp_path` resolved. Same
-  backup-then-shallow-merge pattern, applied to the `mcpServers` and
-  `powers` keys. The final summary notes that servers requiring
-  interactive auth (e.g. Figma) need manual login afterward — this is
-  not automated.
+  backup-then-fully-replace behavior. The final summary notes that
+  servers requiring interactive auth (e.g. Figma) need manual login
+  afterward — this is not automated.
 
 ### `customizations.json`
 

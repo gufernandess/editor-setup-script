@@ -26,6 +26,11 @@ bash, python3, curl, unzip, fontconfig (`fc-cache`).
 
 ## Limitações conhecidas
 
+- `settings.json`, `keybindings.json` e `mcp.json` são **substituídos
+  por completo**, não mesclados — qualquer customização que já
+  existisse nesses arquivos e não estiver em `customizations.json` é
+  perdida (o arquivo original fica salvo em `<arquivo>.bak.<timestamp>`
+  antes da substituição, então nada é perdido de vez).
 - Servidores MCP que exigem login interativo (ex. Figma) precisam de
   autenticação manual depois de aplicado o `mcp.json`.
 - `customizations.json` é um snapshot estático capturado em
