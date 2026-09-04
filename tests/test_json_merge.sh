@@ -27,4 +27,26 @@ python3 "$PROJECT_ROOT/lib/json_merge.py" "$tmpdir/target3.json" "$tmpdir/overla
 result3_len="$(python3 -c "import json; print(len(json.load(open('$tmpdir/target3.json'))))")"
 assert_eq "2" "$result3_len" "array merge should dedupe and end up with 2 items"
 
+# Case 4: malformed JSON in target file should error cleanly
+cat > "$tmpdir/target4.json" <<'EOF'
+{invalid json
+EOF
+cat > "$tmpdir/overlay4.json" <<'EOF'
+{"key": "value"}
+EOF
+python3 "$PROJECT_ROOT/lib/json_merge.py" "$tmpdir/target4.json" "$tmpdir/overlay4.json" 2>"$tmpdir/err4.txt"
+exit_code=$?
+err_output="$(cat "$tmpdir/err4.txt")"
+assert_eq "1" "$exit_code" "malformed target JSON should exit with code 1"
+assert_contains "$err_output" "error:" "error message should contain 'error:'"
+assert_contains "$err_output" "not valid JSON" "error message should mention 'not valid JSON'"
+# Verify no Python traceback in the error output
+if echo "$err_output" | grep -q "Traceback"; then
+    echo "  FAIL: malformed target should not print Python traceback"
+    TESTS_RUN=$((TESTS_RUN + 1))
+    TESTS_FAILED=$((TESTS_FAILED + 1))
+else
+    TESTS_RUN=$((TESTS_RUN + 1))
+fi
+
 rm -rf "$tmpdir"

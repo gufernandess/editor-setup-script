@@ -65,7 +65,14 @@ def main():
     else:
         overlay = overlay_source
 
-    target = load_json_or_none(args.target_path)
+    try:
+        target = load_json_or_none(args.target_path)
+    except json.JSONDecodeError:
+        print(
+            f"error: {args.target_path} is not valid JSON",
+            file=sys.stderr,
+        )
+        return 1
 
     if target is None:
         result = overlay
