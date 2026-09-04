@@ -1,0 +1,120 @@
+{
+  "extensions": [
+    "enkia.tokyo-night",
+    "esbenp.prettier-vscode",
+    "formulahendry.auto-close-tag",
+    "mhutchie.git-graph",
+    "mikestead.dotenv",
+    "ms-azuretools.vscode-docker",
+    "naumovs.color-highlight",
+    "steoates.autoimport",
+    "usernamehw.errorlens",
+    "yzhang.markdown-all-in-one",
+    "ms-azuretools.vscode-containers",
+    "redhat.vscode-yaml",
+    "dbaeumer.vscode-eslint",
+    "wallabyjs.console-ninja",
+    "pkief.material-icon-theme",
+    "astro-build.astro-vscode",
+    "eamodio.gitlens"
+  ],
+  "font": {
+    "name": "JetBrains Mono",
+    "version": "2.304",
+    "download_url": "https://github.com/JetBrains/JetBrainsMono/releases/download/v2.304/JetBrainsMono-2.304.zip",
+    "install_dir": "JetBrainsMono"
+  },
+  "settings": {
+    "workbench.colorTheme": "Tokyo Night Storm",
+    "editor.inlineSuggest.enabled": true,
+    "workbench.iconTheme": "material-icon-theme",
+    "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 16,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "workbench.startupEditor": "none",
+    "console-ninja.featureSet": "Community",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "extensions.ignoreRecommendations": true,
+    "window.newWindowProfile": "Default",
+    "kiroAgent.agentAutonomy": "Autopilot",
+    "accessibility.signals.lineHasBreakpoint": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.chatEditModifiedFile": {"sound": "off"},
+    "accessibility.signals.chatRequestSent": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.chatResponseReceived": {"sound": "off"},
+    "accessibility.signals.chatUserActionRequired": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.clear": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.codeActionApplied": {"sound": "off"},
+    "accessibility.signals.codeActionTriggered": {"sound": "off"},
+    "accessibility.signals.onDebugBreak": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.diffLineDeleted": {"sound": "off"},
+    "accessibility.signals.diffLineInserted": {"sound": "off"},
+    "accessibility.signals.diffLineModified": {"sound": "off"},
+    "accessibility.signals.editsKept": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.positionHasError": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.lineHasError": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.lineHasFoldedArea": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.lineHasInlineSuggestion": {"sound": "off"},
+    "accessibility.signals.nextEditSuggestion": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.noInlayHints": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.notebookCellCompleted": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.notebookCellFailed": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.progress": {"sound": "off", "announcement": "off"},
+    "accessibility.signals.taskCompleted": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.taskFailed": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.terminalBell": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.terminalCommandFailed": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.terminalCommandSucceeded": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.terminalQuickFix": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.editsUndone": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.voiceRecordingStarted": {"sound": "off"},
+    "accessibility.signals.voiceRecordingStopped": {"sound": "off"},
+    "accessibility.signals.positionHasWarning": {"sound": "off", "announcement": "auto"},
+    "accessibility.signals.lineHasWarning": {"sound": "off", "announcement": "auto"},
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    "kiroAgent.trustedTools": ["web_fetch", "remote_web_search"],
+    "redhat.telemetry.enabled": false,
+    "kiroAgent.modelSelection": "auto",
+    "security.workspace.trust.untrustedFiles": "open",
+    "terminal.integrated.shellIntegration.enabled": false,
+    "editor.accessibilitySupport": "off"
+  },
+  "keybindings": [
+    {
+      "key": "ctrl+;",
+      "command": "editor.action.commentLine",
+      "when": "textInputFocus && !editorReadonly"
+    },
+    {
+      "key": "ctrl+;",
+      "command": "editor.action.blockComment",
+      "when": "textInputFocus && !editorReadonly"
+    }
+  ],
+  "mcp": {
+    "mcpServers": {
+      "fetch": {
+        "command": "uvx",
+        "args": ["mcp-server-fetch"],
+        "env": {},
+        "disabled": true,
+        "autoApprove": []
+      },
+      "storybook-mcp": {
+        "type": "http",
+        "url": "http://localhost:6006/mcp"
+      }
+    },
+    "powers": {
+      "mcpServers": {
+        "power-figma-figma": {
+          "type": "http",
+          "url": "https://mcp.figma.com/mcp",
+          "autoApprove": ["get_screenshot", "get_design_context"],
+          "disabledTools": []
+        }
+      }
+    }
+  }
+}
