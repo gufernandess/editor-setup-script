@@ -37,6 +37,12 @@ failed, and what was skipped.
 
 Full log at `~/.editor-setup-install.log`.
 
+**Fully restart the editor afterward** (quit and reopen, not just
+"Reload Window") — the running window doesn't pick up newly installed
+extensions or system fonts on its own, so the color theme, icon
+theme, and font family in `customizations.json` won't visibly apply
+until then.
+
 ## Requirements
 
 - bash

@@ -30,6 +30,7 @@ main() {
     apply_settings "$EDITOR_CONFIG_DIR"
 
     print_summary
+    log_info "restart the editor (fully quit and reopen, not just 'Reload Window') to pick up the new extensions, color/icon theme, and installed font"
     log_info "full log at $LOG_FILE"
 }
 
