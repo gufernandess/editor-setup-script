@@ -4,6 +4,7 @@
 
 FONT_INSTALL_DIR="${FONT_INSTALL_DIR:-$HOME/.local/share/fonts/JetBrainsMono}"
 SCRIPT_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT_DIR="$(dirname "$SCRIPT_LIB_DIR")"
 
 _download_file() {
     curl -fsSL -o "$2" "$1"
@@ -95,7 +96,7 @@ _apply_json_key() {
 
     mkdir -p "$config_dir"
 
-    if python3 "$SCRIPT_LIB_DIR/json_merge.py" "$target" "$CUSTOMIZATIONS_JSON" --overlay-key "$overlay_key" >>"$LOG_FILE" 2>&1; then
+    if python3 "$PROJECT_ROOT_DIR/apply_json_key.py" "$target" "$CUSTOMIZATIONS_JSON" --overlay-key "$overlay_key" >>"$LOG_FILE" 2>&1; then
         log_ok "$step_label applied to $target"
         record_step "$step_label" "OK"
         return 0
