@@ -15,20 +15,29 @@ _proc_parent_pid() {
 }
 
 find_electron_ancestor() {
-    local pid="$1" max_hops="${2:-20}" hop=0 exe app_root
+    # Walks the whole ancestor chain (not just to the first hit) and keeps the
+    # topmost PID matching product.json, since the closest match is often an
+    # intermediate process (e.g. the pty host for the integrated terminal)
+    # rather than the editor's actual root/main process.
+    local pid="$1" max_hops="${2:-30}" hop=0 exe app_root
+    local match_pid="" match_exe=""
     while [[ "$pid" -gt 1 && "$hop" -lt "$max_hops" ]]; do
         exe="$(_proc_exe_path "$pid")"
         if [[ -n "$exe" ]]; then
             app_root="$(dirname "$exe")"
             if [[ -f "$app_root/resources/app/product.json" ]]; then
-                echo "$exe"
-                return 0
+                match_pid="$pid"
+                match_exe="$exe"
             fi
         fi
-        pid="$(_proc_parent_pid "$pid")" || return 1
-        [[ -z "$pid" ]] && return 1
+        pid="$(_proc_parent_pid "$pid")" || break
+        [[ -z "$pid" ]] && break
         hop=$((hop + 1))
     done
+    if [[ -n "$match_pid" ]]; then
+        echo "$match_pid $match_exe"
+        return 0
+    fi
     return 1
 }
 
@@ -68,18 +77,21 @@ resolve_editor_paths() {
     EDITOR_APP_NAME=""
     EDITOR_BIN=""
     EDITOR_CONFIG_DIR=""
+    EDITOR_PID=""
 
     if [[ -z "${TERM_PROGRAM:-}" ]]; then
         log_error "TERM_PROGRAM not set - run this script from inside the editor's integrated terminal"
         return 1
     fi
 
-    local exe app_root product_json product_info app_name data_folder
-    exe="$(find_electron_ancestor "$start_pid")"
-    if [[ -z "$exe" ]]; then
+    local exe app_root product_json product_info app_name data_folder pid_and_exe
+    pid_and_exe="$(find_electron_ancestor "$start_pid")"
+    if [[ -z "$pid_and_exe" ]]; then
         log_error "could not locate the editor process in the process tree"
         return 1
     fi
+    EDITOR_PID="${pid_and_exe%% *}"
+    exe="${pid_and_exe#* }"
 
     app_root="$(dirname "$exe")"
     product_json="$app_root/resources/app/product.json"

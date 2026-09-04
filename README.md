@@ -37,11 +37,13 @@ failed, and what was skipped.
 
 Full log at `~/.editor-setup-install.log`.
 
-**Fully restart the editor afterward** (quit and reopen, not just
-"Reload Window") — the running window doesn't pick up newly installed
-extensions or system fonts on its own, so the color theme, icon
-theme, and font family in `customizations.json` won't visibly apply
-until then.
+As a last step, the script **kills and relaunches the editor process**
+so the new extensions, color/icon theme, and installed font actually
+take effect (the running window doesn't pick those up on its own —
+only a full restart does, not just "Reload Window"). This is meant to
+be run once, before starting any work, so it doesn't try to preserve
+open tabs/windows: whatever the editor's own session restore does on
+a normal restart is what you'll get back.
 
 ## Requirements
 

@@ -118,3 +118,33 @@ apply_settings() {
     _apply_json_key "$config_dir" "settings.json" "settings" "settings"
     _apply_json_key "$config_dir" "keybindings.json" "keybindings" "keybindings"
 }
+
+restart_editor() {
+    local editor_bin="$1" editor_pid="$2"
+    if [[ -z "$editor_bin" || -z "$editor_pid" ]]; then
+        log_warn "skipping editor restart: binary or pid not resolved"
+        record_step "editor restart" "SKIPPED"
+        return 0
+    fi
+
+    log_info "restarting the editor (pid $editor_pid) in a few seconds to load the new extensions/theme/font"
+    record_step "editor restart" "OK"
+
+    # Detached (new session) so it survives the editor process - and this
+    # script's own terminal - dying partway through.
+    setsid bash -c '
+        pid="$1"
+        bin="$2"
+        sleep 2
+        kill -TERM "$pid" 2>/dev/null
+        for _ in $(seq 1 100); do
+            kill -0 "$pid" 2>/dev/null || break
+            sleep 0.1
+        done
+        kill -0 "$pid" 2>/dev/null && kill -KILL "$pid" 2>/dev/null
+        setsid "$bin" >/dev/null 2>&1 </dev/null &
+    ' _ "$editor_pid" "$editor_bin" >/dev/null 2>&1 </dev/null &
+    disown
+
+    return 0
+}
