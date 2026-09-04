@@ -16,8 +16,8 @@ _extract_zip() {
 install_extensions() {
     local editor_bin="$1"
     if [[ -z "$editor_bin" ]]; then
-        log_warn "pulando instalação de extensões: nenhum binário de editor resolvido"
-        record_step "extensões" "SKIPPED"
+        log_warn "skipping extension install: no editor binary resolved"
+        record_step "extensions" "SKIPPED"
         return 0
     fi
 
@@ -32,26 +32,26 @@ print('\n'.join(d['extensions']))
     while IFS= read -r id; do
         [[ -z "$id" ]] && continue
         if "$editor_bin" --install-extension "$id" >>"$LOG_FILE" 2>&1; then
-            log_ok "extensão instalada: $id"
+            log_ok "extension installed: $id"
             ok=$((ok + 1))
         else
-            log_error "falha ao instalar extensão: $id"
+            log_error "failed to install extension: $id"
             fail=$((fail + 1))
         fi
     done <<<"$ids"
 
     if [[ "$fail" -eq 0 ]]; then
-        record_step "extensões: $ok ok, $fail falharam" "OK"
+        record_step "extensions: $ok ok, $fail failed" "OK"
     else
-        record_step "extensões: $ok ok, $fail falharam" "AVISO"
+        record_step "extensions: $ok ok, $fail failed" "WARN"
     fi
     return 0
 }
 
 install_font() {
     if compgen -G "$FONT_INSTALL_DIR/*.ttf" >/dev/null 2>&1; then
-        log_ok "fonte já presente em $FONT_INSTALL_DIR, pulando download"
-        record_step "fonte" "OK"
+        log_ok "font already present at $FONT_INSTALL_DIR, skipping download"
+        record_step "font" "OK"
         return 0
     fi
 
@@ -63,16 +63,16 @@ install_font() {
     zip_path="$tmpdir/font.zip"
 
     if ! _download_file "$url" "$zip_path" >>"$LOG_FILE" 2>&1; then
-        log_warn "falha ao baixar a fonte $name de $url - pulando"
-        record_step "fonte" "AVISO"
+        log_warn "failed to download font $name from $url - skipping"
+        record_step "font" "WARN"
         rm -rf "$tmpdir"
         return 1
     fi
 
     mkdir -p "$FONT_INSTALL_DIR"
     if ! _extract_zip "$zip_path" "$tmpdir/extracted" >>"$LOG_FILE" 2>&1; then
-        log_warn "falha ao extrair a fonte $name - pulando"
-        record_step "fonte" "AVISO"
+        log_warn "failed to extract font $name - skipping"
+        record_step "font" "WARN"
         rm -rf "$tmpdir"
         return 1
     fi
@@ -84,8 +84,8 @@ install_font() {
     fi
 
     rm -rf "$tmpdir"
-    log_ok "fonte $name instalada em $FONT_INSTALL_DIR"
-    record_step "fonte" "OK"
+    log_ok "font $name installed at $FONT_INSTALL_DIR"
+    record_step "font" "OK"
     return 0
 }
 
@@ -100,12 +100,12 @@ _apply_json_key() {
     fi
 
     if python3 "$SCRIPT_LIB_DIR/json_merge.py" "$target" "$CUSTOMIZATIONS_JSON" --overlay-key "$overlay_key" >>"$LOG_FILE" 2>&1; then
-        log_ok "$step_label aplicado em $target"
+        log_ok "$step_label applied to $target"
         record_step "$step_label" "OK"
         return 0
     else
-        log_error "falha ao aplicar $step_label em $target"
-        record_step "$step_label" "ERRO"
+        log_error "failed to apply $step_label to $target"
+        record_step "$step_label" "ERROR"
         return 1
     fi
 }
@@ -113,7 +113,7 @@ _apply_json_key() {
 apply_settings() {
     local config_dir="$1"
     if [[ -z "$config_dir" ]]; then
-        log_warn "pulando settings/keybindings: config_dir não resolvido"
+        log_warn "skipping settings/keybindings: config_dir not resolved"
         record_step "settings" "SKIPPED"
         record_step "keybindings" "SKIPPED"
         return 0
@@ -125,12 +125,12 @@ apply_settings() {
 apply_mcp() {
     local mcp_path="$1"
     if [[ -z "$mcp_path" ]]; then
-        log_warn "pulando mcp.json: mcp_path não resolvido"
+        log_warn "skipping mcp.json: mcp_path not resolved"
         record_step "mcp" "SKIPPED"
         return 0
     fi
     local mcp_dir
     mcp_dir="$(dirname "$mcp_path")"
     _apply_json_key "$mcp_dir" "$(basename "$mcp_path")" "mcp" "mcp"
-    log_info "servidores MCP que exigem login (ex: figma) precisam de autenticação manual depois"
+    log_info "MCP servers that require login (e.g. figma) need manual authentication afterward"
 }

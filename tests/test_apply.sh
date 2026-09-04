@@ -32,7 +32,7 @@ chmod +x "$fake_bin"
 STEP_NAMES=(); STEP_STATUSES=()
 install_extensions "$fake_bin"
 summary="$(print_summary)"
-assert_contains "$summary" "1 ok, 1 falharam" "summary should count one success and one failure"
+assert_contains "$summary" "1 ok, 1 failed" "summary should count one success and one failure"
 
 # --- install_extensions: no editor_bin resolved ---
 STEP_NAMES=(); STEP_STATUSES=()
@@ -48,7 +48,7 @@ export FONT_INSTALL_DIR
 STEP_NAMES=(); STEP_STATUSES=()
 install_font
 summary3="$(print_summary)"
-assert_contains "$summary3" "[OK] fonte" "should skip the download when the font already exists"
+assert_contains "$summary3" "[OK] font" "should skip the download when the font already exists"
 
 # --- install_font: download fails ---
 FONT_INSTALL_DIR="$tmpdir/fonts_missing"
@@ -57,7 +57,7 @@ _download_file() { return 1; }
 STEP_NAMES=(); STEP_STATUSES=()
 install_font
 summary4="$(print_summary)"
-assert_contains "$summary4" "[AVISO] fonte" "should log a warning (not fail) when the download fails"
+assert_contains "$summary4" "[WARN] font" "should log a warning (not fail) when the download fails"
 
 # --- apply_settings: no config_dir resolved ---
 STEP_NAMES=(); STEP_STATUSES=()

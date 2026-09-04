@@ -54,14 +54,14 @@ resolve_editor_paths() {
     EDITOR_MCP_PATH=""
 
     if [[ -z "${TERM_PROGRAM:-}" ]]; then
-        log_error "TERM_PROGRAM não definido - rode este script de dentro do terminal integrado do editor"
+        log_error "TERM_PROGRAM not set - run this script from inside the editor's integrated terminal"
         return 1
     fi
 
     local exe app_root product_json product_info app_name data_folder
     exe="$(find_electron_ancestor "$start_pid")"
     if [[ -z "$exe" ]]; then
-        log_error "não foi possível localizar o processo do editor na árvore de processos"
+        log_error "could not locate the editor process in the process tree"
         return 1
     fi
 
@@ -69,19 +69,19 @@ resolve_editor_paths() {
     product_json="$app_root/resources/app/product.json"
 
     product_info="$(read_product_json "$product_json")" || {
-        log_error "falha ao ler product.json em $product_json"
+        log_error "failed to read product.json at $product_json"
         return 1
     }
     app_name="$(sed -n '1p' <<<"$product_info")"
     data_folder="$(sed -n '2p' <<<"$product_info")"
 
     if [[ -z "$app_name" ]]; then
-        log_error "product.json em $product_json não contém applicationName"
+        log_error "product.json at $product_json has no applicationName"
         return 1
     fi
 
     if [[ "$app_name" != "$TERM_PROGRAM" ]]; then
-        log_warn "applicationName ($app_name) difere de TERM_PROGRAM ($TERM_PROGRAM) - seguindo com $app_name"
+        log_warn "applicationName ($app_name) differs from TERM_PROGRAM ($TERM_PROGRAM) - proceeding with $app_name"
     fi
 
     EDITOR_APP_NAME="$app_name"
@@ -90,15 +90,15 @@ resolve_editor_paths() {
         EDITOR_BIN="$app_root/bin/$app_name"
     elif command -v "$app_name" >/dev/null 2>&1; then
         EDITOR_BIN="$(command -v "$app_name")"
-        log_warn "usando $EDITOR_BIN do PATH (layout $app_root/bin/$app_name não encontrado)"
+        log_warn "using $EDITOR_BIN from PATH (layout $app_root/bin/$app_name not found)"
     else
-        log_error "não encontrei o binário de CLI do editor (tentei $app_root/bin/$app_name e o PATH)"
+        log_error "could not find the editor's CLI binary (tried $app_root/bin/$app_name and PATH)"
     fi
 
     if [[ -n "$data_folder" ]]; then
         EDITOR_CONFIG_DIR="$HOME/.config/$data_folder/User"
     else
-        log_warn "product.json não contém dataFolderName - settings/keybindings serão pulados"
+        log_warn "product.json has no dataFolderName - settings/keybindings will be skipped"
     fi
 
     EDITOR_MCP_PATH="$HOME/.$app_name/settings/mcp.json"

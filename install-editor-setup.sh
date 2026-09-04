@@ -14,15 +14,15 @@ main() {
     LOG_FILE="${LOG_FILE:-$HOME/.editor-setup-install.log}"
     export CUSTOMIZATIONS_JSON LOG_FILE
 
-    log_info "iniciando instalação de customizações do editor"
+    log_info "starting editor customization install"
 
     resolve_editor_paths || true
 
     if [[ -n "$EDITOR_APP_NAME" ]]; then
-        log_info "editor detectado: $EDITOR_APP_NAME"
-        record_step "detecção do editor ($EDITOR_APP_NAME)" "OK"
+        log_info "editor detected: $EDITOR_APP_NAME"
+        record_step "editor detection ($EDITOR_APP_NAME)" "OK"
     else
-        record_step "detecção do editor" "ERRO"
+        record_step "editor detection" "ERROR"
     fi
 
     install_extensions "$EDITOR_BIN"
@@ -31,7 +31,7 @@ main() {
     apply_mcp "$EDITOR_MCP_PATH"
 
     print_summary
-    log_info "log completo em $LOG_FILE"
+    log_info "full log at $LOG_FILE"
 }
 
 source "$SCRIPT_DIR/lib/log.sh"

@@ -15,8 +15,8 @@ _log_line() {
 
 log_info()  { _log_line "INFO" "$1"; }
 log_ok()    { _log_line "OK" "$1"; }
-log_warn()  { _log_line "AVISO" "$1"; }
-log_error() { _log_line "ERRO" "$1"; }
+log_warn()  { _log_line "WARN" "$1"; }
+log_error() { _log_line "ERROR" "$1"; }
 
 record_step() {
     STEP_NAMES+=("$1")
@@ -25,7 +25,7 @@ record_step() {
 
 print_summary() {
     echo
-    echo "===== Resumo ====="
+    echo "===== Summary ====="
     local i
     for i in "${!STEP_NAMES[@]}"; do
         printf "  [%s] %s\n" "${STEP_STATUSES[$i]}" "${STEP_NAMES[$i]}"

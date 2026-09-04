@@ -22,9 +22,9 @@ _download_file() { return 1; }
 
 output="$(main)"
 
-assert_contains "$output" "detecção do editor" "summary should include the detection step"
-assert_contains "$output" "[ERRO]" "detection should show as ERRO when TERM_PROGRAM is unset"
+assert_contains "$output" "editor detection" "summary should include the detection step"
+assert_contains "$output" "[ERROR]" "detection should show as ERROR when TERM_PROGRAM is unset"
 assert_contains "$output" "SKIPPED" "extensions/settings/mcp should show as skipped when detection fails"
-assert_contains "$output" "fonte" "font step should still run even though detection failed"
+assert_contains "$output" "font" "font step should still run even though detection failed"
 
 rm -rf "$tmpdir"
