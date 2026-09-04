@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install-editor-setup.sh - apply personal extensions/font/settings/
-# keybindings/mcp to whichever VS Code-family editor's integrated
+# keybindings to whichever VS Code-family editor's integrated
 # terminal this is run from.
 #
 # Usage: from inside the target editor's own integrated terminal:
@@ -28,7 +28,6 @@ main() {
     install_extensions "$EDITOR_BIN"
     install_font
     apply_settings "$EDITOR_CONFIG_DIR"
-    apply_mcp "$EDITOR_MCP_PATH"
 
     print_summary
     log_info "full log at $LOG_FILE"

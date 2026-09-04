@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib/apply.sh - install extensions/font, apply settings/keybindings/mcp.
+# lib/apply.sh - install extensions/font, apply settings/keybindings.
 # Requires lib/log.sh already sourced. Reads CUSTOMIZATIONS_JSON.
 
 FONT_INSTALL_DIR="${FONT_INSTALL_DIR:-$HOME/.local/share/fonts/JetBrainsMono}"
@@ -95,10 +95,6 @@ _apply_json_key() {
 
     mkdir -p "$config_dir"
 
-    if [[ -f "$target" ]]; then
-        cp "$target" "$target.bak.$(date +%Y%m%d%H%M%S)"
-    fi
-
     if python3 "$SCRIPT_LIB_DIR/json_merge.py" "$target" "$CUSTOMIZATIONS_JSON" --overlay-key "$overlay_key" >>"$LOG_FILE" 2>&1; then
         log_ok "$step_label applied to $target"
         record_step "$step_label" "OK"
@@ -120,17 +116,4 @@ apply_settings() {
     fi
     _apply_json_key "$config_dir" "settings.json" "settings" "settings"
     _apply_json_key "$config_dir" "keybindings.json" "keybindings" "keybindings"
-}
-
-apply_mcp() {
-    local mcp_path="$1"
-    if [[ -z "$mcp_path" ]]; then
-        log_warn "skipping mcp.json: mcp_path not resolved"
-        record_step "mcp" "SKIPPED"
-        return 0
-    fi
-    local mcp_dir
-    mcp_dir="$(dirname "$mcp_path")"
-    _apply_json_key "$mcp_dir" "$(basename "$mcp_path")" "mcp" "mcp"
-    log_info "MCP servers that require login (e.g. figma) need manual authentication afterward"
 }

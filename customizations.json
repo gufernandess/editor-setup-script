@@ -151,30 +151,5 @@
       "command": "editor.action.blockComment",
       "when": "textInputFocus && !editorReadonly"
     }
-  ],
-  "mcp": {
-    "mcpServers": {
-      "fetch": {
-        "command": "uvx",
-        "args": ["mcp-server-fetch"],
-        "env": {},
-        "disabled": true,
-        "autoApprove": []
-      },
-      "storybook-mcp": {
-        "type": "http",
-        "url": "http://localhost:6006/mcp"
-      }
-    },
-    "powers": {
-      "mcpServers": {
-        "power-figma-figma": {
-          "type": "http",
-          "url": "https://mcp.figma.com/mcp",
-          "autoApprove": ["get_screenshot", "get_design_context"],
-          "disabledTools": []
-        }
-      }
-    }
-  }
+  ]
 }

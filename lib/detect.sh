@@ -51,7 +51,6 @@ resolve_editor_paths() {
     EDITOR_APP_NAME=""
     EDITOR_BIN=""
     EDITOR_CONFIG_DIR=""
-    EDITOR_MCP_PATH=""
 
     if [[ -z "${TERM_PROGRAM:-}" ]]; then
         log_error "TERM_PROGRAM not set - run this script from inside the editor's integrated terminal"
@@ -100,8 +99,6 @@ resolve_editor_paths() {
     else
         log_warn "product.json has no dataFolderName - settings/keybindings will be skipped"
     fi
-
-    EDITOR_MCP_PATH="$HOME/.$app_name/settings/mcp.json"
 
     return 0
 }
