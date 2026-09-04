@@ -64,9 +64,11 @@ the full log and final summary.
   varies too much from editor to editor to snapshot generically.
 - `customizations.json` is a static snapshot — it isn't resynced
   automatically if you change extensions/settings later.
-- The editor's config directory is resolved by trying, in order:
-  `$XDG_CONFIG_HOME/<data folder>/User` (if set), `~/.config/<data
-  folder>/User`, then any matching Flatpak (`~/.var/app/*/config/...`)
-  or Snap (`~/snap/*/current/.config/...`) sandbox path that already
-  exists. If none exist yet, it falls back to `~/.config/<data
-  folder>/User` (or `$XDG_CONFIG_HOME` if set).
+- The editor's config directory is resolved from product.json's
+  `nameShort` (e.g. `Code`) — not `dataFolderName` (e.g. `.vscode`),
+  which only names the unrelated CLI data folder used for extensions
+  and `argv.json`. It's tried, in order: `$XDG_CONFIG_HOME/<nameShort>/User`
+  (if set), `~/.config/<nameShort>/User`, then any matching Flatpak
+  (`~/.var/app/*/config/...`) or Snap (`~/snap/*/current/.config/...`)
+  sandbox path that already exists. If none exist yet, it falls back
+  to `~/.config/<nameShort>/User` (or `$XDG_CONFIG_HOME` if set).

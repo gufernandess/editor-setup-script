@@ -42,18 +42,22 @@ find_electron_ancestor() {
 }
 
 _config_dir_candidates() {
-    local data_folder="$1"
+    # $1 must be product.json's nameShort (e.g. "Code"), which is what
+    # Electron's userData path (and thus the User/settings.json directory)
+    # is actually named after - NOT dataFolderName (e.g. ".vscode"), which
+    # only names the unrelated CLI data folder used for extensions/argv.json.
+    local name_short="$1"
 
     if [[ -n "${XDG_CONFIG_HOME:-}" ]]; then
-        echo "$XDG_CONFIG_HOME/$data_folder/User"
+        echo "$XDG_CONFIG_HOME/$name_short/User"
     fi
-    echo "$HOME/.config/$data_folder/User"
+    echo "$HOME/.config/$name_short/User"
 
     local dir
-    for dir in "$HOME"/.var/app/*/config/"$data_folder"/User; do
+    for dir in "$HOME"/.var/app/*/config/"$name_short"/User; do
         [[ -d "$dir" ]] && echo "$dir"
     done
-    for dir in "$HOME"/snap/*/current/.config/"$data_folder"/User; do
+    for dir in "$HOME"/snap/*/current/.config/"$name_short"/User; do
         [[ -d "$dir" ]] && echo "$dir"
     done
 }
@@ -68,7 +72,7 @@ except (OSError, json.JSONDecodeError) as exc:
     print(f'error: failed to read {sys.argv[1]}: {exc}', file=sys.stderr)
     sys.exit(1)
 print(d.get('applicationName', ''))
-print(d.get('dataFolderName', ''))
+print(d.get('nameShort', ''))
 " "$1"
 }
 
@@ -84,7 +88,7 @@ resolve_editor_paths() {
         return 1
     fi
 
-    local exe app_root product_json product_info app_name data_folder pid_and_exe
+    local exe app_root product_json product_info app_name name_short pid_and_exe
     pid_and_exe="$(find_electron_ancestor "$start_pid")"
     if [[ -z "$pid_and_exe" ]]; then
         log_error "could not locate the editor process in the process tree"
@@ -101,7 +105,7 @@ resolve_editor_paths() {
         return 1
     }
     app_name="$(sed -n '1p' <<<"$product_info")"
-    data_folder="$(sed -n '2p' <<<"$product_info")"
+    name_short="$(sed -n '2p' <<<"$product_info")"
 
     if [[ -z "$app_name" ]]; then
         log_error "product.json at $product_json has no applicationName"
@@ -123,7 +127,7 @@ resolve_editor_paths() {
         log_error "could not find the editor's CLI binary (tried $app_root/bin/$app_name and PATH)"
     fi
 
-    if [[ -n "$data_folder" ]]; then
+    if [[ -n "$name_short" ]]; then
         local candidate found_existing=""
         while IFS= read -r candidate; do
             if [[ -d "$candidate" ]]; then
@@ -131,15 +135,15 @@ resolve_editor_paths() {
                 found_existing="1"
                 break
             fi
-        done < <(_config_dir_candidates "$data_folder")
+        done < <(_config_dir_candidates "$name_short")
 
         if [[ -z "$found_existing" ]]; then
-            EDITOR_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$data_folder/User"
+            EDITOR_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/$name_short/User"
         else
             log_info "using config directory: $EDITOR_CONFIG_DIR"
         fi
     else
-        log_warn "product.json has no dataFolderName - settings/keybindings will be skipped"
+        log_warn "product.json has no nameShort - settings/keybindings will be skipped"
     fi
 
     return 0
