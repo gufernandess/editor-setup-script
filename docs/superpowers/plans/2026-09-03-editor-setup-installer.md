@@ -700,11 +700,7 @@ Expected: FAIL — `python3: can't open file '.../customizations.json'`.
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "extensions.ignoreRecommendations": true,
-    "chat.tools.terminal.autoApprove": {
-      "npx prettier": true
-    },
     "window.newWindowProfile": "Default",
-    "kiroAgent.trustedCommands": ["grep *", "git reset --hard f269a62"],
     "kiroAgent.agentAutonomy": "Autopilot",
     "accessibility.signals.lineHasBreakpoint": {"sound": "off", "announcement": "auto"},
     "accessibility.signals.chatEditModifiedFile": {"sound": "off"},
@@ -804,9 +800,9 @@ captured from the local Kiro install on 2026-09-03. Treated as a
 single universal profile applied to whatever editor is detected, per
 the user's explicit choice not to split per-editor profiles.
 
-Note: kiroAgent.trustedCommands carries over a literal
-"git reset --hard f269a62" auto-approve entry from the source
-install - worth a manual look before this gets applied somewhere new.
+Dropped kiroAgent.trustedCommands and chat.tools.terminal.autoApprove
+on purpose - both are agent auto-approved shell command allowlists
+from the source install and the user asked not to carry those over.
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01Nb3bwco447DWeTGiyrmyZg
